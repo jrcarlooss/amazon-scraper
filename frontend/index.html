@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Scraper</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        input, button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .product {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px;
+            display: inline-block;
+            width: 200px;
+            text-align: left;
+        }
+        img {
+            max-width: 100px;
+            height: auto;
+            display: block;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Amazon Product Scraper</h1>
+    <input type="text" id="keyword" placeholder="Digite a palavra-chave">
+    <button onclick="fetchProducts()">Buscar</button>
+    <div id="results"></div>
+
+    <script>
+        async function fetchProducts() {
+            const keyword = document.getElementById("keyword").value;
+            if (!keyword) {
+                alert("Por favor, insira uma palavra-chave!");
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/scrape?keyword=${keyword}`);
+                const data = await response.json();
+
+                const resultsDiv = document.getElementById("results");
+                resultsDiv.innerHTML = ""; // Limpa os resultados anteriores
+
+                // Verifica se há produtos retornados
+                if (data.products.length === 0) {
+                    resultsDiv.innerHTML = "<p>Nenhum produto encontrado para essa palavra-chave.</p>";
+                    return;
+                }
+
+                // Exibe os produtos
+                data.products.forEach(product => {
+                    resultsDiv.innerHTML += `
+                        <div class="product">
+                            <img src="${product.image}" alt="Imagem do Produto">
+                            <p><strong>${product.title}</strong></p>
+                            <p>Classificação: ${product.rating}</p>
+                            <p>Avaliações: ${product.reviews}</p>
+                        </div>`;
+                });
+            } catch (error) {
+                console.error("Erro ao buscar dados:", error);
+                alert("Erro ao buscar os produtos.");
+            }
+        }
+    </script>
+</body>
+</html>
